@@ -1,6 +1,7 @@
 package com.mowitnow.mower.infra.batch;
 
 import com.mowitnow.mower.domain.DomainEntity;
+import com.mowitnow.mower.domain.ParserException;
 import com.mowitnow.mower.domain.api.ProcessCommand;
 import com.mowitnow.mower.domain.area.Coordinates;
 import com.mowitnow.mower.domain.area.Position;
@@ -13,6 +14,8 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.io.Resource;
 
+
+import java.io.*;
 
 import static com.mowitnow.mower.domain.area.Position.from;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -35,8 +38,12 @@ public class MultiLineItemWriter implements ItemWriter<DomainEntity>, StepExecut
     @Override
     public void beforeStep(StepExecution stepExecution) {
         log.debug("Read the  first line contains the coordinates of area ");
-        // TODO to read From file
-        firstLine = "5 5";
+        try {
+            firstLine = readFirstLine();
+        } catch (IOException e) {
+            log.error(" Parser exception cannot get mower coordinates ");
+            throw new ParserException(e.getMessage());
+        }
     }
 
     @Override
@@ -49,9 +56,25 @@ public class MultiLineItemWriter implements ItemWriter<DomainEntity>, StepExecut
                     Movement.from(chunk.getItems().get(1).toString()));
 
             Position position = processCommand.processCommand (command);
-            // TODO to be written in the out resource
-            String line = Position.toLine(position);
+            try {
+                writeToOUtPutFile(Position.toLine(position));
+            } catch (IOException e) {
+                log.error(" cannot write a mower final position to output file ");
+                throw new ParserException(e.getMessage());
+            }
         }
 
     }
+
+    public String readFirstLine() throws IOException {
+        return new BufferedReader(new FileReader(inPut.getFile())).readLine();
+    }
+
+    public void writeToOUtPutFile(String toWrite) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outPut.getFilename()));
+        writer.write(toWrite);
+        writer.close();
+    }
+
+
 }

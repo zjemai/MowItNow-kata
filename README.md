@@ -16,7 +16,12 @@ Usage
 
 To launch the processing you can call this endpoint http://localhost:5543/launch
 
+Packaging
+=====
 
+You can use two profiles to manage packaging:
+*  packaging-jar : to generate a spring-boot executable package
+*  packaging-rpm : to generate a ipk package for (Debian Package Algorithm) linux version 
 
 Kata  - La tondeuse
 =============
