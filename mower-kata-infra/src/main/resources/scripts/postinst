@@ -1,0 +1,4 @@
+#!/bin/sh
+echo "Post installation script"
+rm -rf /data/var/log/applicatifMetier/* || true
+

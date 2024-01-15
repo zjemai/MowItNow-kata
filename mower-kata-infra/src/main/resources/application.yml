@@ -1,0 +1,60 @@
+info:
+    stage: ${dollar}{STAGE:dev}
+    version: "@project.version@"
+    build:
+        artifact: mower-kata
+        name: "@project.name@"
+        description: "@project.description@"
+        version: "@project.version@"
+        time: "@timestamp@"
+        commit:
+            id: "@git.commit.id@"
+
+server:
+    port: 5543
+input: classpath:/inPut.txt
+output: classpath:/out.txt
+#################### Dev ##########################
+---
+spring:
+    config:
+        activate:
+            on-profile: dev
+    datasource:
+        url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DB_CLOSE_ON_EXIT=FALSE
+        username: sa
+        password:
+        driver-class-name: org.h2.Driver
+    jpa:
+        hibernate:
+            ddl-auto: create
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.H2Dialect
+        show-sql: true
+    h2:
+        console:
+            enabled: true
+            path: /h2-console
+input:  classpath:/inPut.txt
+output: classpath:/out.txt
+#################### Staging ##########################
+---
+spring:
+    config:
+        activate:
+            on-profile: staging
+input: /data/mower/inPut.txt
+output: /data/mower/out.txt
+#################### Prod ##############################
+---
+spring:
+    profiles:
+        config:
+            activate:
+                on-profile: prod
+input: classpath:inPut.txt
+output: /data/mower/result/out.txt
+
+
+
